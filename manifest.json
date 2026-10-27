@@ -1,7 +1,7 @@
 {
   "name": "轻盈日记 · 个性化减脂记录",
   "short_name": "轻盈日记",
-  "description": "体重、饮食、营养素、7日平均趋势记录",
+  "description": "体重趋势、饮食搜索、收藏套餐、力量与有氧训练记录",
   "id": "./",
   "start_url": "./index.html",
   "scope": "./",
