@@ -1,0 +1,17 @@
+{
+  "name": "轻盈日记 · 个人减脂记录",
+  "short_name": "轻盈日记",
+  "description": "记录体重、饮食热量与减脂趋势",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f6f7f3",
+  "theme_color": "#f6f7f3",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
