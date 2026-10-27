@@ -6,7 +6,10 @@
 <meta name="theme-color" content="#f6f7f3">
 <meta name="description" content="个人体重与饮食记录工具">
 <link rel="manifest" href="manifest.json">
-<title>轻盈日记 · 减脂记录</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="轻盈日记">
+<title>轻盈日记 V2.0 · 减脂记录</title>
 <style>
 :root{--bg:#f6f7f3;--paper:#fff;--ink:#202a25;--muted:#78817b;--line:#e8ece6;--green:#497b62;--green2:#e6f0e8;--orange:#d58a52;--orange2:#fbefe4;--red:#b95f55;--shadow:0 10px 30px rgba(31,53,39,.055);--radius:22px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
@@ -33,12 +36,19 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .footer-note{text-align:center;color:#929a93;font-size:11px;margin:24px 0 0}
 @media(max-width:760px){.app{padding:16px 14px 105px}.topbar{margin-bottom:20px}.welcome{align-items:flex-start;flex-direction:column;gap:14px}.welcome h2{font-size:25px}.grid{gap:12px}.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}.card{padding:17px;border-radius:20px}.big-number{font-size:38px}.nav{width:calc(100% - 24px);justify-content:space-around;bottom:max(9px,env(safe-area-inset-bottom));}.nav button{flex:1;justify-content:center;padding:11px 5px;gap:4px}.nav .nav-text{display:none}.settings-grid{grid-template-columns:1fr}.calorie-top{gap:14px}.ring{width:105px;height:105px}}
 @media(min-width:761px){.mobile-break{display:none}}
+.trend-caption{font-size:12px;color:var(--green);margin-top:10px;padding:10px 12px;background:var(--green2);border-radius:12px}
+.weekly-summary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 20px}
+.week-box{background:#f5f8f3;border-radius:14px;padding:12px}
+.week-box small{color:var(--muted);display:block;margin-bottom:3px}
+.week-box strong{font-size:19px}
+.estimate{background:#eff6ef;border:1px solid #d8eadb;padding:12px;border-radius:14px;color:#466b53;font-size:12px;line-height:1.7}
+@media(max-width:760px){.weekly-summary{grid-template-columns:1fr 1fr}.top-date{font-size:10px;padding:9px}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark">↗</div><div><h1>轻盈日记</h1><p>把每一天的努力记录下来</p></div></div>
+    <div class="brand"><div class="brand-mark">↗</div><div><h1>轻盈日记</h1><p>专属减脂记录 · V2.0</p></div></div>
     <div class="top-date" id="todayLabel">每日记录 · —</div>
   </header>
 
@@ -61,7 +71,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
           <div class="card-head"><h3 class="card-title">今日热量</h3><span class="pill" style="background:var(--orange2);color:#a96932">饮食概览</span></div>
           <div class="calorie-top">
             <div class="ring"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="track" cx="60" cy="60" r="50"></circle><circle class="value" id="calorieRing" cx="60" cy="60" r="50"></circle></svg><div class="ring-text"><strong id="caloriePercent">0%</strong><small>目标完成</small></div></div>
-            <div class="calorie-summary"><strong><span id="caloriesConsumed">0</span><span class="unit"> kcal</span></strong><p>已摄入 / <span id="calorieTargetText">1600</span> kcal 目标</p><p id="calorieRemaining" style="margin-top:9px;color:var(--green)">还可摄入 1600 kcal</p></div>
+            <div class="calorie-summary"><strong><span id="caloriesConsumed">0</span><span class="unit"> kcal</span></strong><p>已摄入 / <span id="calorieTargetText">2300</span> kcal 目标</p><p id="calorieRemaining" style="margin-top:9px;color:var(--green)">还可摄入 2300 kcal</p></div>
           </div>
           <div class="macro-list">
             <div class="macro-row"><span class="macro-name">蛋白质</span><div class="macro-bar"><span id="proteinBar"></span></div><span class="macro-amount"><span id="proteinTotal">0</span> g</span></div>
@@ -76,7 +86,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
         </article>
         <article class="card span-5">
           <div class="card-head"><h3 class="card-title">最近体重</h3><button class="btn btn-ghost btn-small" data-go="weight">查看全部</button></div>
-          <div id="miniChart"></div>
+          <div id="miniChart"></div><div class="trend-caption" id="homeTrend">记录至少三次体重后显示趋势</div>
         </article>
       </div>
     </section>
@@ -96,6 +106,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
         <article class="card span-7">
           <div class="card-head"><h3 class="card-title">体重趋势</h3><span class="subtle">最近 30 条记录</span></div>
           <div id="weightChart"></div>
+          <div class="weekly-summary" id="weightWeeklyStats"></div>
           <div class="card-head" style="margin-top:18px"><h3 class="card-title">历史记录</h3><span class="subtle" id="weightCount">0 条</span></div>
           <div id="weightHistory" class="history-list"></div>
         </article>
@@ -117,11 +128,13 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
             <div class="field"><label for="foodFat">脂肪（g）</label><input id="foodFat" type="number" min="0" step="0.1" placeholder="0"></div>
             <div class="field full"><button class="btn btn-primary" type="submit">保存饮食记录</button></div>
           </form>
-          <p class="form-note">热量与营养数据会因品牌、烹饪方式和实际份量不同而变化。预设值仅供估算。</p>
+          <p class="form-note" id="foodAutoNote">选择预设食物后，修改克数会自动按比例计算热量和营养素；你也可以手动修正。不同品牌、烹饪方式会产生差异。</p>
         </article>
         <article class="card span-7">
           <div class="card-head"><h3 class="card-title">快速添加常见食物</h3><span class="subtle">点选后可修改份量</span></div>
-          <div class="food-presets" id="foodPresets"></div>
+          <div id="foodPresets" class="food-presets"></div>
+          <div class="card-head" style="margin-top:18px"><h3 class="card-title">最近记录的食物</h3><span class="subtle">一键填入后再确认保存</span></div>
+          <div id="recentFoods" class="food-presets"></div>
           <div class="card-head" style="margin-top:22px"><h3 class="card-title">所选日期的饮食</h3><span class="subtle" id="foodDayTotal">0 kcal</span></div>
           <div id="foodDayList" class="meal-list"></div>
         </article>
@@ -133,13 +146,21 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
         <article class="card span-8">
           <div class="card-head"><h3 class="card-title">个人目标</h3><span class="pill">随时可调整</span></div>
           <form id="settingsForm" class="settings-grid">
-            <div class="field"><label for="startWeight">起始体重（kg）</label><input id="startWeight" type="number" min="20" max="400" step="0.1" placeholder="例如：70"></div>
-            <div class="field"><label for="targetWeight">目标体重（kg）</label><input id="targetWeight" type="number" min="20" max="400" step="0.1" placeholder="例如：60"></div>
-            <div class="field"><label for="calorieTarget">每日热量目标（kcal）</label><input id="calorieTarget" type="number" min="500" max="6000" step="50" value="1600" required></div>
-            <div class="field"><label for="proteinTarget">每日蛋白质参考目标（g）</label><input id="proteinTarget" type="number" min="0" max="400" step="5" value="100"></div>
-            <div class="field full"><button class="btn btn-primary" type="submit">保存目标设置</button></div>
+            <div class="field"><label for="profileAge">年龄（岁）</label><input id="profileAge" type="number" min="18" max="110" step="1" value="27"></div>
+            <div class="field"><label for="profileSex">热量估算参数</label><select id="profileSex"><option value="male">男性</option><option value="female">女性</option><option value="unknown">暂不提供</option></select></div>
+            <div class="field"><label for="profileHeight">身高（cm）</label><input id="profileHeight" type="number" min="100" max="250" step="1" value="180"></div>
+            <div class="field"><label for="profileActivity">日常活动量</label><select id="profileActivity"><option value="sedentary">久坐为主</option><option value="light">轻度活动</option><option value="active">经常走动</option><option value="heavy">体力劳动较多</option></select></div>
+            <div class="field full"><label for="profileTraining">每周训练次数</label><select id="profileTraining"><option value="0">几乎不训练</option><option value="2">1–2 次</option><option value="4">3–4 次</option><option value="5">5 次及以上</option></select></div>
+            <div class="field"><label for="startWeight">起始体重（kg）</label><input id="startWeight" type="number" min="20" max="400" step="0.1" value="80"></div>
+            <div class="field"><label for="targetWeight">目标体重（kg）</label><input id="targetWeight" type="number" min="20" max="400" step="0.1" value="75"></div>
+            <div class="field"><label for="calorieTarget">每日热量目标（kcal）</label><input id="calorieTarget" type="number" min="500" max="6000" step="1" value="2300" required></div>
+            <div class="field"><label for="proteinTarget">每日蛋白质（g）</label><input id="proteinTarget" type="number" min="0" max="400" step="1" value="150"></div>
+            <div class="field"><label for="carbTarget">每日碳水（g）</label><input id="carbTarget" type="number" min="0" max="900" step="1" value="279"></div>
+            <div class="field"><label for="fatTarget">每日脂肪（g）</label><input id="fatTarget" type="number" min="0" max="300" step="1" value="65"></div>
+            <div class="field full"><div class="estimate" id="profileEstimate"></div></div>
+            <div class="field full"><button class="btn btn-primary" type="submit">保存个人档案与目标</button></div>
           </form>
-          <p class="form-note">每日热量和蛋白质目标应结合身高、年龄、活动量及健康状况确定。1600 kcal 只是初始占位值，不代表适合每个人。</p>
+          <p class="form-note">2300 kcal 和三大营养素是你当前资料对应的起始试行值，并非医疗建议。基础代谢采用 Mifflin–St Jeor 公式估算，总消耗会因实际运动强度而变化，建议结合 2–3 周趋势调整。</p>
         </article>
         <article class="card span-4">
           <div class="card-head"><h3 class="card-title">数据与隐私</h3></div>
@@ -149,12 +170,12 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
         </article>
         <article class="card span-12">
           <h3 class="card-title" style="margin-bottom:8px">使用说明</h3>
-          <p class="subtle" style="line-height:1.9;margin:0">本应用当前将数据保存在此浏览器的本地存储中，不会自动同步到其他设备。清除浏览器数据、使用无痕模式或更换浏览器可能导致记录丢失，请使用“导出数据”定期备份。当前食物营养数据是估算值，不替代专业营养评估。</p>
+          <p class="subtle" style="line-height:1.9;margin:0">本应用当前将数据保存在此浏览器的本地存储中，不会自动同步到其他设备。清除浏览器数据、使用无痕模式或更换浏览器可能导致记录丢失，请使用“导出数据”定期备份。升级后保留相同的数据存储键，首次升级前尤其建议备份。当前食物营养数据是估算值，不替代专业营养评估。</p>
         </article>
       </div>
     </section>
   </main>
-  <p class="footer-note">轻盈日记 · 记录进步，不追求每天完美</p>
+  <p class="footer-note">轻盈日记 V2.0 · 记录进步，不追求每天完美</p>
 </div>
 
 <nav class="nav" aria-label="主导航">
@@ -172,8 +193,9 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
     return `${y}-${m}-${day}`;
   };
-  const defaultState = () => ({weights:[], foods:[], settings:{startWeight:'',targetWeight:'',calorieTarget:1600,proteinTarget:100}});
+  const defaultState = () => ({weights:[], foods:[], settings:{startWeight:80,targetWeight:75,calorieTarget:2300,proteinTarget:150,carbTarget:279,fatTarget:65,profile:{age:27,sex:'male',height:180,activity:'sedentary',training:'5'}}});
   let state = loadState();
+  let selectedPreset = null;
   let selectedDate = localDate();
   const presets = [
     {name:'鸡蛋',amount:50,calories:72,protein:6.3,carbs:.4,fat:4.8,emoji:'🥚'},
@@ -190,10 +212,19 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     {name:'豆腐',amount:100,calories:90,protein:8,carbs:2,fat:5,emoji:'🧈'}
   ];
   function loadState(){
-    try{const raw=localStorage.getItem(KEY); if(!raw)return defaultState(); const s=JSON.parse(raw); return {...defaultState(),...s,settings:{...defaultState().settings,...(s.settings||{})},weights:Array.isArray(s.weights)?s.weights:[],foods:Array.isArray(s.foods)?s.foods:[]};}
+    try{const raw=localStorage.getItem(KEY); if(!raw)return defaultState(); const s=JSON.parse(raw); const old=s.settings||{};
+      const upgraded={...defaultState().settings,...old, profile:{...defaultState().settings.profile,...(old.profile||{})}};
+      // Legacy defaults in V1 were placeholders. Preserve other user-chosen values.
+      if (!s.versionV2){
+        if(old.calorieTarget===1600) upgraded.calorieTarget=2300;
+        if(old.proteinTarget===100) upgraded.proteinTarget=150;
+        if(old.startWeight==='' || old.startWeight===null) upgraded.startWeight=80;
+        if(old.targetWeight==='' || old.targetWeight===null) upgraded.targetWeight=75;
+      }
+      return {...defaultState(),...s,versionV2:true,settings:upgraded,weights:Array.isArray(s.weights)?s.weights:[],foods:Array.isArray(s.foods)?s.foods:[]};}
     catch(e){return defaultState();}
   }
-  function save(){localStorage.setItem(KEY,JSON.stringify(state));render();}
+  function save(){state.versionV2=true;try{localStorage.setItem(KEY,JSON.stringify(state));render();return true;}catch(e){showToast("保存失败，请检查浏览器存储空间");return false;}}
   function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
   function fmt(n,d=1){return Number(n).toLocaleString('zh-CN',{maximumFractionDigits:d,minimumFractionDigits:0});}
   function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),2300);}
@@ -223,6 +254,56 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     }
     return `<svg class="chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="体重趋势图"><defs><linearGradient id="areaFill" x1="0" x2="0" y1="0" y2="1"><stop offset="0%" stop-color="#78a887" stop-opacity=".23"/><stop offset="100%" stop-color="#78a887" stop-opacity="0"/></linearGradient></defs>${grid}<polygon class="chart-area" points="${area}"/><polyline class="chart-line" points="${points}"/>${items.map((it,i)=>`<circle class="chart-dot" cx="${x(i)}" cy="${y(+it.weight)}" r="${mini?3.5:4}"><title>${it.date}: ${it.weight} kg</title></circle>`).join('')}${labels}</svg>`;
   }
+  function dateShift(iso, days){
+    const [y,m,d]=iso.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+days);return localDate(dt);
+  }
+  function weightWeek(end, daysAgo){
+    const windowEnd=dateShift(end,-daysAgo),windowStart=dateShift(windowEnd,-6);
+    const a=state.weights.filter(w=>w.date>=windowStart && w.date<=windowEnd && Number.isFinite(+w.weight));
+    return {count:a.length,avg:a.length?a.reduce((t,w)=>t+(+w.weight),0)/a.length:null};
+  }
+  function renderWeekly(end){
+    const current=weightWeek(end,0),previous=weightWeek(end,7);
+    const currentText=current.count?`${fmt(current.avg,2)} kg`:'暂无数据';
+    const change=(current.count>=3&&previous.count>=3)?current.avg-previous.avg:null;
+    $('weightWeeklyStats').innerHTML=`<div class="week-box"><small>最近7天平均 · ${current.count}次测量</small><strong>${currentText}</strong></div><div class="week-box"><small>较前7天趋势</small><strong>${change===null?'数据不足':(change>0?'+':'')+fmt(change,2)+' kg'}</strong></div>`;
+    $('homeTrend').textContent=change===null?`7日均重 ${currentText}；每周记录至少3次，连续两周可比较趋势`:`7日均重 ${currentText}，较前7天 ${change>0?'+':''}${fmt(change,2)} kg`;
+  }
+  function estimateText(){
+    const age=+$('profileAge').value,h=+$('profileHeight').value,start=+$('startWeight').value, sex=$('profileSex').value;
+    if(!age||!h||!start||sex==='unknown')return '填入年龄、身高、体重和估算参数后，可查看基础代谢与活动消耗参考值。';
+    const bmr=10*start+6.25*h-5*age+(sex==='male'?5:-161);
+    const activity=$('profileActivity').value, training=+$('profileTraining').value;
+    const workBase=({sedentary:1.20,light:1.30,active:1.42,heavy:1.55})[activity]||1.2;
+    const multiplier=Math.min(1.9,workBase+(training===5?.25:training===4?.18:training===2?.09:0));
+    const low=Math.round(bmr*(multiplier-.04)),high=Math.round(bmr*(multiplier+.06));
+    return `基础代谢估算约 <b>${Math.round(bmr)}</b> kcal/天；粗略维持热量约 <b>${low}–${high}</b> kcal/天（会受训练强度影响）。当前设置为 <b>${$('calorieTarget').value||'—'}</b> kcal/天。`;
+  }
+  function updateEstimate(){$('profileEstimate').innerHTML=estimateText();}
+  function scalePreset(){
+    if(!selectedPreset)return;
+    const amount=+$('foodAmount').value;
+    if(!Number.isFinite(amount)||amount<=0)return;
+    const scale=amount/selectedPreset.amount;
+    ['calories','protein','carbs','fat'].forEach((key)=>{
+      const ids={calories:'foodCalories',protein:'foodProtein',carbs:'foodCarbs',fat:'foodFat'};
+      $(ids[key]).value=key==='calories'?String(Math.round(selectedPreset[key]*scale)):String(Math.round(selectedPreset[key]*scale*10)/10);
+    });
+    $('foodAutoNote').textContent=`已按「${selectedPreset.name}」基准份量 ${selectedPreset.amount}g 自动换算至 ${amount}g。可按产品包装和烹饪方式调整。`;
+  }
+  function fillFoodFromHistory(f){
+    selectedPreset={...f};
+    $('foodName').value=f.name;$('foodAmount').value=f.amount;$('mealType').value=f.meal;
+    ['calories','protein','carbs','fat'].forEach(key=>$( {calories:'foodCalories',protein:'foodProtein',carbs:'foodCarbs',fat:'foodFat'}[key]).value=f[key]||0);
+    setTab('food');showToast('已填入历史食物，可修改份量后保存');
+  }
+  function renderRecent(){
+    const recent=[],seen=new Set();
+    [...state.foods].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).forEach(f=>{
+      if(!seen.has(f.name) && recent.length<8){seen.add(f.name);recent.push(f);}
+    });
+    $('recentFoods').innerHTML=recent.length?recent.map(f=>`<button class="preset" type="button" data-repeat="${esc(f.id)}">↻ ${esc(f.name)}</button>`).join(''):'<span class="subtle">保存食物后会显示在这里</span>';
+  }
   function render(){
     const date=$('selectedDate').value||selectedDate; selectedDate=date;
     $('todayLabel').textContent=`每日记录 · ${date===localDate()?'今天':date.slice(5).replace('-',' / ')}`;
@@ -242,18 +323,23 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     $('calorieRing').style.strokeDashoffset=314*(1-ratio);
     $('calorieRemaining').textContent=t.calories<=target?`还可摄入 ${fmt(target-t.calories,0)} kcal`:`超出目标 ${fmt(t.calories-target,0)} kcal`;
     $('calorieRemaining').style.color=t.calories<=target?'var(--green)':'var(--red)';
-    [['protein',t.protein,Math.max(1,+state.settings.proteinTarget||100)],['carb',t.carbs,250],['fat',t.fat,60]].forEach(([key,val,goal])=>{$(key+'Total').textContent=fmt(val);$(key+'Bar').style.width=Math.min(100,val/goal*100)+'%';});
+    [['protein',t.protein,Math.max(1,+state.settings.proteinTarget||100)],['carb',t.carbs,Math.max(1,+state.settings.carbTarget||279)],['fat',t.fat,Math.max(1,+state.settings.fatTarget||65)]].forEach(([key,val,goal])=>{$(key+'Total').textContent=fmt(val);$(key+'Bar').style.width=Math.min(100,val/goal*100)+'%';});
     const foods=foodsForDate(date);
     $('homeMeals').innerHTML=foods.length?foods.map(f=>foodCard(f)).join(''):empty('今天还没有饮食记录。<br>从一顿饭开始，慢慢养成记录习惯。');
-    $('miniChart').innerHTML=chartSvg(sorted.slice(-6),true);
+    $('miniChart').innerHTML=chartSvg(sorted.slice(-6),true);renderWeekly(date);
     const chartItems=sorted.slice(-30);
     $('weightChart').innerHTML=chartSvg(chartItems,false);
     $('weightCount').textContent=`${sorted.length} 条`;
     $('weightHistory').innerHTML=sorted.length?[...sorted].reverse().slice(0,20).map(w=>`<div class="history-row"><div><div class="history-date">${dateText(w.date)}</div>${w.note?`<div class="subtle">${esc(w.note)}</div>`:''}</div><div style="display:flex;align-items:center;gap:10px"><div class="history-weight">${fmt(w.weight)} <small>kg</small></div><button class="btn btn-ghost btn-small" data-delete-weight="${esc(w.id)}">删除</button></div></div>`).join(''):empty('暂无记录');
+    renderRecent();
     $('foodDayTotal').textContent=`${fmt(t.calories,0)} kcal`;
     $('foodDayList').innerHTML=foods.length?foods.map(f=>foodCard(f)).join(''):empty('该日期还没有饮食记录。');
     $('startWeight').value=state.settings.startWeight??'';$('targetWeight').value=state.settings.targetWeight??'';
-    $('calorieTarget').value=state.settings.calorieTarget||1600;$('proteinTarget').value=state.settings.proteinTarget||100;
+    $('calorieTarget').value=state.settings.calorieTarget??2300;$('proteinTarget').value=state.settings.proteinTarget??150;
+    $('carbTarget').value=state.settings.carbTarget??279;$('fatTarget').value=state.settings.fatTarget??65;
+    const profile=state.settings.profile||defaultState().settings.profile;
+    $('profileAge').value=profile.age??27;$('profileSex').value=profile.sex||'male';$('profileHeight').value=profile.height??180;
+    $('profileActivity').value=profile.activity||'sedentary';$('profileTraining').value=profile.training||'5';updateEstimate();
   }
   function setTab(tab){
     document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+tab));
@@ -268,15 +354,21 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     $('foodPresets').innerHTML=presets.map((p,i)=>`<button type="button" class="preset" data-preset="${i}">${p.emoji} ${p.name}</button>`).join('');
   }
   function addPreset(p){
-    $('foodName').value=p.name;$('foodAmount').value=p.amount;$('foodCalories').value=p.calories;
-    $('foodProtein').value=p.protein;$('foodCarbs').value=p.carbs;$('foodFat').value=p.fat;
-    $('mealType').value='午餐';showToast(`已填入${p.name}，可按实际份量修改`);
-    $('foodName').focus();
+    selectedPreset={...p};
+    $('foodName').value=p.name;$('foodAmount').value=p.amount;
+    $('foodCalories').value=p.calories;$('foodProtein').value=p.protein;$('foodCarbs').value=p.carbs;$('foodFat').value=p.fat;
+    $('mealType').value='午餐';scalePreset();showToast(`已填入${p.name}，修改克数可自动换算`);
+    $('foodAmount').focus();
   }
+  $('foodAmount').addEventListener('input',scalePreset);
+  $('foodName').addEventListener('input',()=>selectedPreset=null);
+  ['foodCalories','foodProtein','foodCarbs','foodFat'].forEach(id=>$(id).addEventListener('input',()=>selectedPreset=null));
+  ['profileAge','profileSex','profileHeight','profileActivity','profileTraining','startWeight','calorieTarget'].forEach(id=>$(id).addEventListener('input',updateEstimate));
   document.addEventListener('click',e=>{
     const tab=e.target.closest('[data-tab]');if(tab){setTab(tab.dataset.tab);return;}
     const go=e.target.closest('[data-go]');if(go){setTab(go.dataset.go);return;}
     const preset=e.target.closest('[data-preset]');if(preset){addPreset(presets[+preset.dataset.preset]);return;}
+    const repeat=e.target.closest('[data-repeat]');if(repeat){const f=state.foods.find(f=>f.id===repeat.dataset.repeat);if(f)fillFoodFromHistory(f);return;}
     const df=e.target.closest('[data-delete-food]');if(df){if(confirm('确定删除这条饮食记录吗？')){state.foods=state.foods.filter(f=>f.id!==df.dataset.deleteFood);save();showToast('饮食记录已删除');}return;}
     const dw=e.target.closest('[data-delete-weight]');if(dw){if(confirm('确定删除这条体重记录吗？')){state.weights=state.weights.filter(w=>w.id!==dw.dataset.deleteWeight);save();showToast('体重记录已删除');}return;}
   });
@@ -292,18 +384,22 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     e.preventDefault();const name=$('foodName').value.trim(),amount=parseFloat($('foodAmount').value),calories=parseFloat($('foodCalories').value);
     if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(calories)||calories<0){showToast('请填写食物名称、份量和热量');return;}
     const food={id:crypto.randomUUID?crypto.randomUUID():String(Date.now()),date:$('foodDate').value,meal:$('mealType').value,name,amount,calories,protein:parseFloat($('foodProtein').value)||0,carbs:parseFloat($('foodCarbs').value)||0,fat:parseFloat($('foodFat').value)||0,createdAt:Date.now()};
-    state.foods.push(food);save();$('foodName').value='';$('foodAmount').value='';$('foodCalories').value='';$('foodProtein').value='';$('foodCarbs').value='';$('foodFat').value='';showToast('饮食记录已保存');
+    state.foods.push(food);save();$('foodName').value='';$('foodAmount').value='';$('foodCalories').value='';$('foodProtein').value='';$('foodCarbs').value='';$('foodFat').value='';selectedPreset=null;showToast('饮食记录已保存');
   });
   $('settingsForm').addEventListener('submit',e=>{
-    e.preventDefault();state.settings={startWeight:$('startWeight').value,targetWeight:$('targetWeight').value,calorieTarget:parseInt($('calorieTarget').value,10)||1600,proteinTarget:parseInt($('proteinTarget').value,10)||100};save();showToast('目标设置已保存');
+    e.preventDefault();state.settings={...state.settings,startWeight:$('startWeight').value,targetWeight:$('targetWeight').value,
+      calorieTarget:parseInt($('calorieTarget').value,10)||2300,proteinTarget:parseFloat($('proteinTarget').value)||0,
+      carbTarget:parseFloat($('carbTarget').value)||0,fatTarget:parseFloat($('fatTarget').value)||0,
+      profile:{age:parseInt($('profileAge').value,10)||27,sex:$('profileSex').value,height:parseFloat($('profileHeight').value)||180,activity:$('profileActivity').value,training:$('profileTraining').value}};
+    save();showToast('个人档案与目标已保存');
   });
   $('exportBtn').addEventListener('click',()=>{
-    const blob=new Blob([JSON.stringify({app:'轻盈日记',version:1,exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({app:'轻盈日记',version:2,exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`轻盈日记备份-${localDate()}.json`;a.click();URL.revokeObjectURL(a.href);showToast('备份文件已生成');
   });
   $('importFile').addEventListener('change',async e=>{
     const file=e.target.files?.[0];if(!file)return;
-    try{const parsed=JSON.parse(await file.text());if(!Array.isArray(parsed.weights)||!Array.isArray(parsed.foods)||!parsed.settings)throw new Error('格式不正确');if(!confirm('导入将替换当前本机记录，建议先导出备份。是否继续？'))return;state={...defaultState(),...parsed,settings:{...defaultState().settings,...parsed.settings}};save();showToast('备份导入成功');}
+    try{const parsed=JSON.parse(await file.text());if(!Array.isArray(parsed.weights)||!Array.isArray(parsed.foods)||!parsed.settings)throw new Error('格式不正确');if(!confirm('导入将替换当前本机记录，建议先导出备份。是否继续？'))return;state={...defaultState(),...parsed,versionV2:true,settings:{...defaultState().settings,...parsed.settings,profile:{...defaultState().settings.profile,...(parsed.settings.profile||{})}}};save();showToast('备份导入成功');}
     catch(err){showToast('导入失败：文件格式不正确');}
     finally{e.target.value='';}
   });

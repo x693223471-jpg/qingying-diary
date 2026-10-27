@@ -1,8 +1,10 @@
 {
-  "name": "轻盈日记 · 个人减脂记录",
+  "name": "轻盈日记 · 个性化减脂记录",
   "short_name": "轻盈日记",
-  "description": "记录体重、饮食热量与减脂趋势",
+  "description": "体重、饮食、营养素、7日平均趋势记录",
+  "id": "./",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#f6f7f3",
   "theme_color": "#f6f7f3",
@@ -11,6 +13,18 @@
       "src": "icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
