@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="轻盈日记">
-<title>轻盈日记 V2.1 · 饮食训练</title>
+<title>轻盈日记 V2.2 · 快捷记录</title>
 <style>
 :root{--bg:#f6f7f3;--paper:#fff;--ink:#202a25;--muted:#78817b;--line:#e8ece6;--green:#497b62;--green2:#e6f0e8;--orange:#d58a52;--orange2:#fbefe4;--red:#b95f55;--shadow:0 10px 30px rgba(31,53,39,.055);--radius:22px}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
@@ -71,12 +71,20 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
 .action-strip .field{flex:1;min-width:165px}
 .mini-label{color:var(--muted);font-size:11px}
 @media(max-width:760px){.nav button{padding:10px 3px;font-size:16px;min-width:0}.nav{gap:0}.meal-item{gap:8px}.meal-emoji{width:36px;height:36px}.workout-item{padding:10px}.workout-actions{flex-direction:column}}
+
+.digest{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.digest-item{background:#f5f8f3;border:1px solid #ebefe9;border-radius:15px;padding:14px;min-width:0}
+.digest-item small{display:block;color:var(--muted);font-size:11px}
+.digest-item strong{display:block;font-size:20px;font-weight:750;margin-top:4px}
+.digest-item p{color:var(--muted);font-size:11px;margin:5px 0 0}
+.quick-strip{margin:12px 0;align-items:center}
+@media(max-width:760px){.digest{grid-template-columns:1fr 1fr}.digest-item strong{font-size:17px}.nav .nav-text{display:inline;font-size:10px}.nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}.nav{bottom:max(8px,env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><div class="brand-mark">↗</div><div><h1>轻盈日记</h1><p>专属减脂记录 · V2.1</p></div></div>
+    <div class="brand"><div class="brand-mark">↗</div><div><h1>轻盈日记</h1><p>专属减脂记录 · V2.2</p></div></div>
     <div class="top-date" id="todayLabel">每日记录 · —</div>
   </header>
 
@@ -124,6 +132,11 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
           <div class="card-head"><h3 class="card-title">近 7 天饮食与运动</h3><button class="btn btn-ghost btn-small" data-go="train">查看周报</button></div>
           <div id="homeWeekStats" class="summary-grid"></div>
           <p class="form-note">仅统计有记录的日期；未记录不代表没有进食或运动。</p>
+        </article>
+        <article class="card span-12">
+          <div class="card-head"><h3 class="card-title">今日记录小结</h3><span class="pill">V2.2</span></div>
+          <div id="dayDigest" class="digest"></div>
+          <p class="form-note">只概括已经录入的内容。未记录的饮食或运动不等于实际没有摄入或活动，也不作为医疗建议。</p>
         </article>
       </div>
     </section>
@@ -180,6 +193,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
           <div class="card-head" style="margin-top:18px"><h3 class="card-title">最近记录的食物</h3><span class="subtle">一键填入后再确认保存</span></div>
           <div id="recentFoods" class="food-presets"></div>
           <div class="card-head" style="margin-top:22px"><h3 class="card-title">所选日期的饮食</h3><span class="subtle" id="foodDayTotal">0 kcal</span></div>
+          <div class="actions quick-strip"><button type="button" class="btn btn-soft" id="copyYesterdayMeal">↻ 复制昨日同餐</button><span class="subtle">先选日期与餐次；确认后添加昨日同餐的食物</span></div>
           <div id="mealBreakdown" class="chips"></div><div id="foodDayList" class="meal-list"></div>
         </article>
       </div>
@@ -200,7 +214,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
             <div class="field"><label for="workoutMinutes">时长（分钟）</label><input id="workoutMinutes" type="number" min="0" max="1440" step="1" placeholder="例如 40"></div>
             <div class="field cardio-field hide"><label for="workoutKm">距离（km，可选）</label><input id="workoutKm" type="number" min="0" max="1000" step="0.1" placeholder="例如 5"></div>
             <div class="field full"><label for="workoutNote">备注（可选）</label><input id="workoutNote" maxlength="140" placeholder="例如：最后一组较吃力、跑步机快走"></div>
-            <div class="field full"><div class="actions"><button class="btn btn-primary" id="workoutSubmit" type="submit">保存训练项目</button><button id="workoutCancelEdit" class="btn btn-ghost" type="button" style="display:none">取消编辑</button></div></div>
+            <div class="field full"><div class="actions"><button class="btn btn-primary" id="workoutSubmit" type="submit">保存训练项目</button><button class="btn btn-soft" id="fillLastWorkout" type="button">↻ 带入上次同类项目</button><button id="workoutCancelEdit" class="btn btn-ghost" type="button" style="display:none">取消编辑</button></div></div>
           </form>
           <p class="form-note">力量训练按“动作”逐条记录；同一天可记录多个动作。每周训练天数按去重后的日期计算，不会把多个动作算成多次训练。</p>
         </article>
@@ -240,6 +254,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
         <article class="card span-4">
           <div class="card-head"><h3 class="card-title">数据与隐私</h3></div>
           <div class="setting-card"><h4>📦 导出备份</h4><p>将体重、饮食和设置导出为 JSON 文件，建议定期备份。</p><button class="btn btn-soft" id="exportBtn">导出数据</button></div>
+          <div class="setting-card" style="margin-top:12px"><h4>📊 导出 CSV 表格</h4><p>将体重、饮食、力量、有氧记录整理为一个 CSV 文件，可用 WPS / Excel 查看。此功能不会自动上传数据。</p><button class="btn btn-soft" id="exportCsvBtn">导出 CSV 表格</button></div>
           <div class="setting-card" style="margin-top:12px"><h4>↩️ 导入备份</h4><p>从此前导出的 JSON 文件恢复记录。</p><input type="file" id="importFile" accept=".json,application/json" style="font-size:11px;max-width:100%"></div>
           <div class="setting-card" style="margin-top:12px"><h4>🧹 清空本机数据</h4><p>删除本浏览器保存的所有记录，此操作不可撤销。</p><button class="btn btn-danger" id="clearBtn">清空数据</button></div>
         </article>
@@ -250,15 +265,15 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
       </div>
     </section>
   </main>
-  <p class="footer-note">轻盈日记 V2.1 · 记录进步，不追求每天完美</p>
+  <p class="footer-note">轻盈日记 V2.2 · 记录进步，不追求每天完美</p>
 </div>
 
 <nav class="nav" aria-label="主导航">
-  <button class="active" data-tab="home"><span>⌂</span><span class="nav-text">今日</span></button>
-  <button data-tab="weight"><span>⚖</span><span class="nav-text">体重</span></button>
-  <button data-tab="food"><span>♧</span><span class="nav-text">饮食</span></button>
-  <button data-tab="train"><span>♜</span><span class="nav-text">训练</span></button>
-  <button data-tab="settings"><span>☷</span><span class="nav-text">设置</span></button>
+  <button class="active" data-tab="home" aria-label="今日"><span>⌂</span><span class="nav-text">今日</span></button>
+  <button data-tab="weight" aria-label="体重"><span>⚖</span><span class="nav-text">体重</span></button>
+  <button data-tab="food" aria-label="饮食"><span>♧</span><span class="nav-text">饮食</span></button>
+  <button data-tab="train" aria-label="训练"><span>♜</span><span class="nav-text">训练</span></button>
+  <button data-tab="settings" aria-label="设置"><span>☷</span><span class="nav-text">设置</span></button>
 </nav>
 <div class="toast" id="toast" role="status"></div>
 <script>
@@ -442,6 +457,7 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     $('profileAge').value=profile.age??27;$('profileSex').value=profile.sex||'male';$('profileHeight').value=profile.height??180;
     $('profileActivity').value=profile.activity||'sedentary';$('profileTraining').value=profile.training||'5';updateEstimate();
     renderV21(date);
+    renderDigest(date);
   }
   function setTab(tab){
     document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+tab));
@@ -569,6 +585,57 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     $('weekReportNote').textContent=`统计周期：${dateText(s.start)}—${dateText(s.end)}。饮食缺失日不计入日均值。训练天数按不同日期去重；同一训练中多个动作的分钟数合计可能重复计算。`;
   }
 
+
+  function copyYesterdayMeal(){
+    const end=$('selectedDate').value,previous=dateShift(end,-1),meal=$('mealType').value;
+    const source=foodsForDate(previous).filter(f=>f.meal===meal);
+    if(!source.length){showToast(`昨日${meal}没有记录，可先创建套餐`);return;}
+    const matches=foodsForDate(end).filter(f=>f.meal===meal);
+    const extra=matches.length?'当前日期已有同餐记录，复制会追加食物，可能重复计入热量。\n':'';
+    if(!confirm(`${extra}将 ${previous} 的${meal}（${source.length} 种食物）复制到 ${end} 的${meal}？`))return;
+    source.forEach((f,i)=>state.foods.push({...f,id:newId(),date:end,meal,createdAt:Date.now()+i}));
+    if(save())showToast(`已复制 ${source.length} 种食物，请核对份量`);
+  }
+  function fillLastWorkout(){
+    const type=$('workoutType').value,date=$('workoutDate').value||$('selectedDate').value;
+    const matches=[...state.workouts].filter(w=>w.type===type).sort((a,b)=>b.date.localeCompare(a.date)||(b.createdAt||0)-(a.createdAt||0));
+    if(!matches.length){showToast(type==='strength'?'还没有可复用的力量训练动作':'还没有可复用的有氧训练');return;}
+    const w=matches[0];
+    cancelWorkoutEdit(true);
+    $('workoutDate').value=date;$('workoutType').value=type;
+    for(const [key,id] of [['name','workoutName'],['sets','workoutSets'],['reps','workoutReps'],['kg','workoutKg'],['minutes','workoutMinutes'],['km','workoutKm'],['note','workoutNote']])$(id).value=w[key]??'';
+    switchWorkoutType();$('workoutName').focus();
+    showToast('已填入最近同类项目，请按本次训练修改后保存');
+  }
+  function renderDigest(date){
+    const food=foodsForDate(date),workouts=state.workouts.filter(w=>w.date===date),t=totals(date),settings=state.settings;
+    const wt=state.weights.find(w=>w.date===date),pGoal=+settings.proteinTarget||150,kGoal=+settings.calorieTarget||2300;
+    const items=[
+      {title:'饮食记录',value:food.length?`${fmt(t.calories,0)} kcal`:'尚未记录',desc:food.length?`${food.length} 项 · 相当于热量目标的 ${fmt(t.calories/kGoal*100,0)}%`:'尚无当天饮食记录'},
+      {title:'蛋白质记录',value:food.length?`${fmt(t.protein)} g`:'尚未记录',desc:food.length?`参考目标 ${fmt(pGoal,0)} g / 天`:'尚无当天营养数据'},
+      {title:'训练记录',value:workouts.length?`${workouts.length} 个项目`:'尚未记录',desc:workouts.length?`${workouts.filter(w=>w.type==='strength').length} 个力量 · ${workouts.filter(w=>w.type==='cardio').length} 个有氧`:'有休息日也很正常'},
+      {title:'当天体重',value:wt?`${fmt(wt.weight)} kg`:'尚未记录',desc:wt?'可以到体重页查看 7 日平均趋势':'不必为了打卡而重复称重'}
+    ];
+    $('dayDigest').innerHTML=items.map(x=>`<div class="digest-item"><small>${x.title}</small><strong>${x.value}</strong><p>${x.desc}</p></div>`).join('');
+  }
+  function csvSafe(v){
+    const raw=String(v??'');
+    const safe=/^[\s]*[=+@\-]/.test(raw) ? "'"+raw : raw;
+    return '"'+safe.replace(/"/g,'""')+'"';
+  }
+  function exportCsv(){
+    const headers=['记录类型','日期','餐次或训练类型','名称','体重(kg)','食物重量(g)','热量(kcal)','蛋白质(g)','碳水(g)','脂肪(g)','组数','每组次数','训练重量(kg)','时长(分钟)','距离(km)','备注'];
+    const lines=[headers];
+    [...state.weights].sort((a,b)=>a.date.localeCompare(b.date)).forEach(x=>lines.push(['体重',x.date,'','',x.weight,'','','','','','','','','','',x.note||'']));
+    [...state.foods].sort((a,b)=>a.date.localeCompare(b.date)).forEach(x=>lines.push(['饮食',x.date,x.meal,x.name,'',x.amount,x.calories,x.protein,x.carbs,x.fat,'','','','','','']));
+    [...state.workouts].sort((a,b)=>a.date.localeCompare(b.date)).forEach(x=>lines.push(['训练',x.date,x.type==='strength'?'力量':'有氧',x.name,'','','','','','',x.sets??'',x.reps??'',x.kg??'',x.minutes??'',x.km??'',x.note||'']));
+    const csv='\ufeff'+lines.map(line=>line.map(csvSafe).join(',')).join('\r\n');
+    const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+    const url=URL.createObjectURL(blob);a.href=url;a.download=`轻盈日记记录-${localDate()}.csv`;
+    document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500);
+    showToast('CSV 已生成；请在文件 App 的下载项目中查看');
+  }
+
   $('foodAmount').addEventListener('input',scalePreset);
   $('foodName').addEventListener('input',()=>selectedPreset=null);
   ['foodCalories','foodProtein','foodCarbs','foodFat'].forEach(id=>$(id).addEventListener('input',()=>selectedPreset=null));
@@ -606,10 +673,12 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
     cancelFoodEdit();resetFoodFields();save();showToast(isEditing?'饮食记录已修改':'饮食记录已保存');
   });
   $('foodSearch').addEventListener('input',setupPresets);
+  $('copyYesterdayMeal').addEventListener('click',copyYesterdayMeal);
   $('saveFavoriteBtn').addEventListener('click',favoriteFromForm);
   $('saveComboBtn').addEventListener('click',comboFromMeal);
   $('foodCancelEdit').addEventListener('click',()=>{cancelFoodEdit();resetFoodFields();showToast('已取消饮食编辑');});
   $('workoutType').addEventListener('change',switchWorkoutType);
+  $('fillLastWorkout').addEventListener('click',fillLastWorkout);
   $('workoutCancelEdit').addEventListener('click',()=>{cancelWorkoutEdit(true);showToast('已取消训练编辑');});
   $('workoutForm').addEventListener('submit',e=>{
     e.preventDefault();
@@ -632,8 +701,9 @@ button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,inpu
       profile:{age:parseInt($('profileAge').value,10)||27,sex:$('profileSex').value,height:parseFloat($('profileHeight').value)||180,activity:$('profileActivity').value,training:$('profileTraining').value}};
     save();showToast('个人档案与目标已保存');
   });
+  $('exportCsvBtn').addEventListener('click',exportCsv);
   $('exportBtn').addEventListener('click',()=>{
-    const blob=new Blob([JSON.stringify({app:'轻盈日记',version:'2.1',exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});
+    const blob=new Blob([JSON.stringify({app:'轻盈日记',version:'2.2',exportedAt:new Date().toISOString(),...state},null,2)],{type:'application/json'});
     const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`轻盈日记备份-${localDate()}.json`;a.click();URL.revokeObjectURL(a.href);showToast('备份文件已生成');
   });
   $('importFile').addEventListener('change',async e=>{
